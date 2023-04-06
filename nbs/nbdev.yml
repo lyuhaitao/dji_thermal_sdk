@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "dji_thermal_sdk"
+  site-url: "https://lyuhaitao.github.io/dji_thermal_sdk"
+  description: "Use ctypes to capsulate DJI thermal SDK. Generate thermal images with different palettes and heatmaps."
+  repo-branch: master
+  repo-url: "https://github.com/lyuhaitao/dji_thermal_sdk"
