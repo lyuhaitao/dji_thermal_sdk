@@ -21,11 +21,20 @@ __all__ = ['DIRP_PSEUDO_COLOR_WHITEHOT', 'DIRP_PSEUDO_COLOR_FULGURITE', 'DIRP_PS
            'dirp_set_pseudo_color', 'dirp_set_verbose_level', 'get_pseudo_color']
 
 # %% ../nbs/00_core_dji.ipynb 3
+import os
 import ctypes as CT
 from ctypes import *
 
 # %% ../nbs/00_core_dji.ipynb 4
 _libdirp = ""
+dllfp = os.path.join(os.getcwd(),"dji_thermal_sdk", "libdirp.dll")
+print(dllfp)
+try:
+    _libdirp = cdll.LoadLibrary(dllfp)
+    
+except FileNotFoundError as err:
+    print(err)
+    print("Please copy libdirp.dll, lib_dirp.dll, lib_girp.dll, lib_iirp.dll, and lib_list.ini. to your folder.")
 # dirp_pseudo_color_e
 DIRP_PSEUDO_COLOR_WHITEHOT   = 0
 DIRP_PSEUDO_COLOR_FULGURITE  = 1
@@ -144,12 +153,7 @@ class dirp_rjpeg_version_t (Structure):
     _fields_ = [("rjpeg", CT.c_uint32),("header", CT.c_uint32),("curve", CT.c_uint32)]
     pass
 
-# %% ../nbs/00_core_dji.ipynb 6
-try:
-    _libdirp = cdll.LoadLibrary("./libdirp.dll")
-    DJI.set_dirp_dll(_libdirp)
-except FileNotFoundError as err:
-    print(err)
+
 
 # %% ../nbs/00_core_dji.ipynb 7
 def set_dirp_dll(libdirp):
