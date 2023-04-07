@@ -4,6 +4,3 @@ website:
       - index.ipynb
       - 00_core_dji.ipynb
       - 01_utility.ipynb
-      - section: nbs
-        contents:
-          - nbs/index.ipynb
