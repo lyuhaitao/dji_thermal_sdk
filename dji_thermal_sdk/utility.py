@@ -5,7 +5,6 @@ __all__ = ['str2', 'lht_parse_djixmp', 'getJPEGHandle', 'rjpeg_to_thermal', 'rjp
 
 # %% ../01_utility.ipynb 1
 from .dji_sdk import *
-import dji_thermal_sdk.dji_sdk as DJI
 import numpy as np
 import exif
 import os
@@ -136,8 +135,8 @@ def rjpeg_to_heatmap(src:str,dtype='float32'):
     ret = getJPEGHandle(src)
     if ret != 0:
         raise ValueError(f"the rjpg file:{src} is not from DJI device")
-    rjpeg_resolution = DJI.dirp_resolution_t()
-    DJI.dirp_get_rjpeg_resolution(DJI.DIRP_HANDLE, CT.byref(rjpeg_resolution))
+    rjpeg_resolution = dirp_resolution_t()
+    dirp_get_rjpeg_resolution(DIRP_HANDLE, CT.byref(rjpeg_resolution))
     img_h = rjpeg_resolution.height
     img_w = rjpeg_resolution.width
     # calculate the buffer size based on the resolution
@@ -145,8 +144,8 @@ def rjpeg_to_heatmap(src:str,dtype='float32'):
         size = rjpeg_resolution.height * rjpeg_resolution.width *  CT.sizeof(CT.c_int16)
         # create a buffer for a raw image
         raw_image_buffer = CT.create_string_buffer(size)
-        ret = DJI.dirp_measure(DJI.DIRP_HANDLE, CT.byref(raw_image_buffer), size)
-        if ret != DJI.DIRP_SUCCESS:
+        ret = dirp_measure(DIRP_HANDLE, CT.byref(raw_image_buffer), size)
+        if ret != DIRP_SUCCESS:
             raise ValueError(f"Error: error code={ret}")
         raw_file_path = os.path.splitext(src)[0] + ".raw"
         with open(raw_file_path, 'wb') as f:
@@ -158,8 +157,8 @@ def rjpeg_to_heatmap(src:str,dtype='float32'):
         size = rjpeg_resolution.height * rjpeg_resolution.width *  CT.sizeof(CT.c_float)
         # create a buffer for a raw image
         raw_image_buffer = CT.create_string_buffer(size)
-        ret = DJI.dirp_measure_ex(DJI.DIRP_HANDLE, CT.byref(raw_image_buffer), size)
-        if ret != DJI.DIRP_SUCCESS:
+        ret = dirp_measure_ex(DIRP_HANDLE, CT.byref(raw_image_buffer), size)
+        if ret != DIRP_SUCCESS:
             raise ValueError(f"Error: error code={ret}")
         raw_file_path = os.path.splitext(src)[0] + ".raw"
         with open(raw_file_path, 'wb') as f:
