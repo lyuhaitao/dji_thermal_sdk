@@ -73,16 +73,16 @@ def rjpeg_to_thermal(src:str, palette:int):
     parameters:
         [str] src: file path of original jpg. For example, c:\\deer.jpg
         [int] palette: the number of palette
-                - DIRP_PSEUDO_COLOR_WHITEHOT   = 0
-                - DIRP_PSEUDO_COLOR_FULGURITE  = 1
-                - DIRP_PSEUDO_COLOR_IRONRED    = 2
-                - DIRP_PSEUDO_COLOR_HOTIRON    = 3
-                - DIRP_PSEUDO_COLOR_MEDICAL    = 4
-                - DIRP_PSEUDO_COLOR_ARCTIC     = 5
-                - DIRP_PSEUDO_COLOR_RAINBOW1   = 6
-                - DIRP_PSEUDO_COLOR_RAINBOW2   = 7
-                - DIRP_PSEUDO_COLOR_TINT       = 8
-                - DIRP_PSEUDO_COLOR_BLACKHOT   = 9
+                 DIRP_PSEUDO_COLOR_WHITEHOT   = 0
+                 DIRP_PSEUDO_COLOR_FULGURITE  = 1
+                 DIRP_PSEUDO_COLOR_IRONRED    = 2
+                 DIRP_PSEUDO_COLOR_HOTIRON    = 3
+                 DIRP_PSEUDO_COLOR_MEDICAL    = 4
+                 DIRP_PSEUDO_COLOR_ARCTIC     = 5
+                 DIRP_PSEUDO_COLOR_RAINBOW1   = 6
+                 DIRP_PSEUDO_COLOR_RAINBOW2   = 7
+                 DIRP_PSEUDO_COLOR_TINT       = 8
+                 DIRP_PSEUDO_COLOR_BLACKHOT   = 9
     return:
         return numpy.ndarray -> img
     '''
