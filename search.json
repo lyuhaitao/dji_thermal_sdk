@@ -1,0 +1,107 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "DJI Thermal SDK",
+    "section": "",
+    "text": "from dji_thermal_sdk.dji_sdk import *\nfrom dji_thermal_sdk.utility import rjpeg_to_heatmap, rjpeg_to_thermal\nimport dji_thermal_sdk.dji_sdk as DJI\nimport dji_thermal_sdk.utility as util\nimport ctypes as CT\nfrom ctypes import *\nimport os,sys\nimport matplotlib.pyplot as plt\nimport numpy as np\nimport seaborn as sns\nThis version of DJI Thermal SDK is 1.4, which was published on 11/09/2022"
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "DJI Thermal SDK",
+    "section": "Install",
+    "text": "Install\npip install dji_thermal_sdk"
+  },
+  {
+    "objectID": "index.html#the-package-only-can-work-on-windows-system.",
+    "href": "index.html#the-package-only-can-work-on-windows-system.",
+    "title": "DJI Thermal SDK",
+    "section": "The package only can work on Windows System.",
+    "text": "The package only can work on Windows System.\nFor Windows OS, DJI SDK DLLs include libdirp.dll, libv_dirp.dll, libv_girp.dll, libv_iirp.dll, libv_list.ini.\nFor Linux OS, DJI SDK DLLs include libdirp.so, libv_dirp.so, libv_girp.so, libv_iirp.so, libv_list.ini.\nFirstly, you should invoke ‘dji_init’ to initialize DJI sdk environment. This step is very important"
+  },
+  {
+    "objectID": "index.html#initialize-the-dji-environment.-this-step-is-very-important",
+    "href": "index.html#initialize-the-dji-environment.-this-step-is-very-important",
+    "title": "DJI Thermal SDK",
+    "section": "Initialize the DJI environment. This step is very important",
+    "text": "Initialize the DJI environment. This step is very important\nif you don’t provide the file path of ‘libdirp.dll’, the default ‘libdirp.dll’ with version 1.3 will be automatically chosen.\n\nroot = os.path.dirname(DJI.__file__)\nif sys.platform.startswith('linux'):\n    dllpath = os.path.join(root,'linux', 'libdirp.so')\n    osname  = 'linux'\nelse:\n    dllpath = os.path.join(root,'windows', 'libdirp.dll')\n    osname  = 'windows'\n\nif os.path.isfile(dllpath):\n    print(f'current OS is {osname}, dllpath:{dllpath}')\nelse:\n    print(\"please download SDK from https://www.dji.com/downloads/softwares/dji-thermal-sdk\")\n#\n\ndji_init(dllpath=dllpath, osname=osname)\nDJI._libdirp\n\ncurrent OS is linux, dllpath:/home/hxl170008/code/git_repos/dji_thermal_sdk/dji_thermal_sdk/linux/libdirp.so\n\n\n&lt;CDLL '/home/hxl170008/code/git_repos/dji_thermal_sdk/dji_thermal_sdk/linux/libdirp.so', handle 3f7c160 at 0x7facfbf1e6d0&gt;"
+  },
+  {
+    "objectID": "index.html#get-the-handle-of-a-r-jpeg-image",
+    "href": "index.html#get-the-handle-of-a-r-jpeg-image",
+    "title": "DJI Thermal SDK",
+    "section": "Get the handle of a R-JPEG image",
+    "text": "Get the handle of a R-JPEG image\nDIRP_HANDLE is a void pointer, and it has been definded.\nyou can get it by package.DIRP_HANDLE\n\nrd = r\"dataset\\Deer_Goats_Unsure.jpg\"\nwith open(rd, 'rb') as f:\n    content = f.read()\n    print(len(content))\n# method1 to get the file size\nprint(f\"File size: {os.path.getsize(rd)}\")\n# method 2 to get the file size\nfile_stat = os.stat(rd)\nsize = c_int32(file_stat.st_size)\nprint(f\"File size: {size}\")\n\n# the method to create a string buffer, which is important.\nrjpeg_data = CT.create_string_buffer(len(content))\nrjpeg_data.value = content\nprint(f\"rjpeg_data: {rjpeg_data}\")\n\n# test the function to create a handle of an image\nret = dirp_create_from_rjpeg(rjpeg_data,size, CT.byref(DIRP_HANDLE))\nprint(f'ret = {ret}')\nif ret == 0:\n    print(\"successfully get the r-jpeg handle.\")\n#\nprint(f\"DIRP_HANDLE: {DIRP_HANDLE}  address: {hex(DIRP_HANDLE.value)} \")\n\n1367428\nFile size: 1367428\nFile size: c_long(1367428)\nrjpeg_data: &lt;ctypes.c_char_Array_1367428 object&gt;\nret = 0\nsuccessfully get the r-jpeg handle.\nDIRP_HANDLE: c_void_p(2201333297840)  address: 0x20089b072b0"
+  },
+  {
+    "objectID": "index.html#get-the-version-of-api",
+    "href": "index.html#get-the-version-of-api",
+    "title": "DJI Thermal SDK",
+    "section": "Get the version of API",
+    "text": "Get the version of API\n\njpeg_version = dirp_api_version_t() \nret = dirp_get_api_version(CT.byref(jpeg_version))\nif ret == DIRP_SUCCESS:\n    print(\"Success\")\n#\nprint(f\"jpeg_version.api: \\t {jpeg_version.api}\")\nprint(f\"jpeg_version.magic: \\t {jpeg_version.magic}\")\n\nSuccess\njpeg_version.api:    19\njpeg_version.magic:      b'b85e4d3'"
+  },
+  {
+    "objectID": "index.html#get-the-version-of-dji-jpg",
+    "href": "index.html#get-the-version-of-dji-jpg",
+    "title": "DJI Thermal SDK",
+    "section": "Get the version of DJI JPG",
+    "text": "Get the version of DJI JPG\n\njpeg_version = dirp_rjpeg_version_t()\nret = dirp_get_api_version(CT.byref(jpeg_version))\nif ret == DIRP_SUCCESS:\n    print(\"Success\")\n#\nprint(f\"rjpeg:{jpeg_version.rjpeg}\")\nprint(f\"header:{jpeg_version.header}\")\nprint(f\"curve:{jpeg_version.curve}\")\n\nSuccess\nrjpeg:19\nheader:1697986658\ncurve:3367988"
+  },
+  {
+    "objectID": "index.html#get-color-bar",
+    "href": "index.html#get-color-bar",
+    "title": "DJI Thermal SDK",
+    "section": "Get Color Bar",
+    "text": "Get Color Bar\n\nnbdev.show_doc(dirp_color_bar_t)\n\n\nclass dirp_color_bar_t[source]\n\n\ndirp_color_bar_t() :: Structure\n\nColor bar parameters structure definition\n\n\n\njpeg_color_bar = dirp_color_bar_t()\nret = dirp_get_color_bar(DIRP_HANDLE, CT.byref(jpeg_color_bar))\nif ret == DIRP_SUCCESS:\n    print(\"Success\")\nprint(f\"jpeg_color_bar.high: \\t {jpeg_color_bar.high}\")\nprint(f\"jpeg_color_bar.low: \\t {jpeg_color_bar.low}\")\nprint(f\"jpeg_color_bar.manual_enable: \\t {jpeg_color_bar.manual_enable}\")\n\nSuccess\njpeg_color_bar.high:     -131073.015625\njpeg_color_bar.low:      9.10844001811131e-44\njpeg_color_bar.manual_enable:    False"
+  },
+  {
+    "objectID": "index.html#get-the-resolution-of-a-r-jpeg-image",
+    "href": "index.html#get-the-resolution-of-a-r-jpeg-image",
+    "title": "DJI Thermal SDK",
+    "section": "Get the resolution of a R-JPEG image",
+    "text": "Get the resolution of a R-JPEG image\n\nrjpeg_resolution = dirp_resolution_t()\nret = dirp_get_rjpeg_resolution(DIRP_HANDLE, CT.byref(rjpeg_resolution))\nprint(f'ret = {ret}')\nif ret == 0:\n    print(\"successfully get the resolution.\")\n\nout = f'Height: {rjpeg_resolution.height}, width: {rjpeg_resolution.width}'\nout\n\nret = 0\nsuccessfully get the resolution.\n\n\n'Height: 512, width: 640'"
+  },
+  {
+    "objectID": "index.html#set-pseudo-color",
+    "href": "index.html#set-pseudo-color",
+    "title": "DJI Thermal SDK",
+    "section": "Set Pseudo Color",
+    "text": "Set Pseudo Color\n\nDIRP_PSEUDO_COLOR_WHITEHOT = 0\nDIRP_PSEUDO_COLOR_FULGURITE = 1\nDIRP_PSEUDO_COLOR_IRONRED = 2\nDIRP_PSEUDO_COLOR_HOTIRON = 3\nDIRP_PSEUDO_COLOR_MEDICAL = 4\nDIRP_PSEUDO_COLOR_ARCTIC = 5\nDIRP_PSEUDO_COLOR_RAINBOW1 = 6\nDIRP_PSEUDO_COLOR_RAINBOW2 = 7\nDIRP_PSEUDO_COLOR_TINT = 8\nDIRP_PSEUDO_COLOR_BLACKHOT = 9\n\n\nret = dirp_set_pseudo_color(DIRP_HANDLE, c_int(0))\nif ret == DIRP_SUCCESS:\n    print(\"Success\")\nelse:\n    print(f\"Error: ret={ret}\")\n\nSuccess"
+  },
+  {
+    "objectID": "index.html#transform-a-thermal-image-by-a-specific-palette",
+    "href": "index.html#transform-a-thermal-image-by-a-specific-palette",
+    "title": "DJI Thermal SDK",
+    "section": "Transform a thermal image by a specific palette",
+    "text": "Transform a thermal image by a specific palette\n\nsize = rjpeg_resolution.height * rjpeg_resolution.width * 3 * CT.sizeof(c_uint8)\nraw_image_buffer = CT.create_string_buffer(size)\nprint(raw_image_buffer.raw[100])\nret = dirp_process(DIRP_HANDLE,byref(raw_image_buffer), size)\nif ret == DIRP_SUCCESS:\n    print(\"Success\")\nelse:\n    print(f\"Error: ret={ret}\")\n#\nraw_file_path = os.path.splitext(rd)[0] + \".raw\"\nprint(raw_file_path)\nwith open(raw_file_path, 'wb') as f:\n    f.write(raw_image_buffer.raw)\n#\nif os.path.exists(raw_file_path):\n    print(f\"Success! file size: {os.path.getsize(raw_file_path)}\")\nelse:\n    print(\"Error\")\n#\nwith open(raw_file_path, encoding='cp1252') as fin:\n    img = np.fromfile(fin, dtype = np.uint8)\n    print(img.shape)\n    img.shape = (512,640,3)\n    #original = Image.fromarray(img)\n#\n\nfig = plt.figure(figsize=(10,8))\nplt.imshow(img, cmap='gray')"
+  },
+  {
+    "objectID": "index.html#rjpge_to_thermal",
+    "href": "index.html#rjpge_to_thermal",
+    "title": "DJI Thermal SDK",
+    "section": "rjpge_to_thermal",
+    "text": "rjpge_to_thermal\n\nif DJI._libdirp == \"\":\n    print(\"run dji_init() to initialize the DJI sdk.\")\nsrc = r\"dataset\\Deer_Goats_Unsure.jpg\"\nimg = rjpeg_to_thermal(src,0)\nfig = plt.figure(figsize=(10,8))\nplt.imshow(img)\nplt.show()\n\n\n\n\n\nimg = rjpeg_to_thermal(src,2)\nfig = plt.figure(figsize=(5,4))\nplt.imshow(img)\nplt.show()"
+  },
+  {
+    "objectID": "index.html#rjpge_to_heatmap",
+    "href": "index.html#rjpge_to_heatmap",
+    "title": "DJI Thermal SDK",
+    "section": "rjpge_to_heatmap",
+    "text": "rjpge_to_heatmap\n\nif DJI._libdirp == \"\":\n    print(\"run dji_init() to initialize the DJI sdk.\")\nsrc = r\"dataset\\Deer_Goats_Unsure.jpg\"\nimg = rjpeg_to_heatmap(src,dtype='float32')\nfig = plt.figure(figsize=(10,8))\nax = sns.heatmap(img, cmap='gray')\nax.set_xticks([])\nax.set_yticks([])\nplt.show()\n\n\n\n\n\nif DJI._libdirp == \"\":\n    print(\"run dji_init() to initialize the DJI sdk.\")\nsrc = r\"dataset\\Deer_Goats_Unsure.jpg\"\nimg = rjpeg_to_heatmap(src,dtype='int16')\nfig = plt.figure(figsize=(10,8))\nax = sns.heatmap(img, cmap='gray')\nax.set_xticks([])\nax.set_yticks([])\nplt.show()"
+  },
+  {
+    "objectID": "01_utility.html",
+    "href": "01_utility.html",
+    "title": "dji_thermal_sdk",
+    "section": "",
+    "text": "source\n\ngetJPEGHandle\n\n getJPEGHandle (file_path)\n\nparameters: [str] file_path: jpg file return: DIRP_HANDLE\n\nsource\n\n\nlht_parse_djixmp\n\n lht_parse_djixmp (file_path:str)\n\n\nsource\n\n\nstr2\nstr(object=’’) -&gt; str str(bytes_or_buffer[, encoding[, errors]]) -&gt; str\nCreate a new string object from the given object. If encoding or errors is specified, then the object must expose a data buffer that will be decoded using the given encoding and error handler. Otherwise, returns the result of object.__str__() (if defined) or repr(object). encoding defaults to sys.getdefaultencoding(). errors defaults to ‘strict’.\n\nsource\n\n\nrjpeg_to_thermal\n\n rjpeg_to_thermal (src:str, palette:int)\n\nparameters: [str] src: file path of original jpg. For example, c:.jpg [int] palette: the number of palette DIRP_PSEUDO_COLOR_WHITEHOT = 0 DIRP_PSEUDO_COLOR_FULGURITE = 1 DIRP_PSEUDO_COLOR_IRONRED = 2 DIRP_PSEUDO_COLOR_HOTIRON = 3 DIRP_PSEUDO_COLOR_MEDICAL = 4 DIRP_PSEUDO_COLOR_ARCTIC = 5 DIRP_PSEUDO_COLOR_RAINBOW1 = 6 DIRP_PSEUDO_COLOR_RAINBOW2 = 7 DIRP_PSEUDO_COLOR_TINT = 8 DIRP_PSEUDO_COLOR_BLACKHOT = 9 return: return numpy.ndarray -&gt; img\n\nsource\n\n\nrjpeg_to_heatmap\n\n rjpeg_to_heatmap (src:str, dtype='float32')\n\nparameters: [str] src: file path of original jpg. For example, c:.jpg [str] dtype: ‘float32’ or ‘int16’ return: return numpy.ndarray -&gt; img"
+  },
+  {
+    "objectID": "core_dji.html",
+    "href": "core_dji.html",
+    "title": "DJI Thermal SDK",
+    "section": "",
+    "text": "source\n\ndirp_rjpeg_version_t\nR-JPEG version structure definition\n\nsource\n\n\ndirp_resolution_t\nThe image size structure definition\n\nsource\n\n\ndirp_measurement_params_t\nCustomize temperature measurement parameteres structure definition\n\nsource\n\n\ndirp_measurement_params_range_t\nRange of temperature measurement parameteres structure definition\n\nsource\n\n\ndirp_isp_pseudo_color_lut_t\nPseudo color LUT array structure definition\n\nsource\n\n\ndirp_isotherm_t\nIsotherm parameters structure definition\n\nsource\n\n\ndirp_enhancement_params_t\nImage enhancement parameteres structure definition\n\nsource\n\n\ndirp_color_bar_t\nColor bar parameters structure definition\n\nsource\n\n\ndirp_api_version_t\nAPI version structure definition\n\nsource\n\n\nset_dirp_dll\n\n set_dirp_dll (libdirp)\n\n\nsource\n\n\ndji_init\n\n dji_init (dllpath:str=None, osname='windows')\n\n\nsource\n\n\ndirp_set_verbose_level\n\n dirp_set_verbose_level (level)\n\nSet log print level. Parameters [in]level:Log pring level dirp_verbose_level_e\n\nsource\n\n\ndirp_set_pseudo_color\n\n dirp_set_pseudo_color (h, pseudo_color)\n\nSet custom ISP pseudo color type. Parameters [in]h:DIRP API handle [in]pseudo_color:ISP pseudo color type dirp_pseudo_color_e Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_set_measurement_params\n\n dirp_set_measurement_params (h, measurement)\n\nSet custom temperature measurement parameters. Parameters [in]h:DIRP API handle [in]measurement_params:Temperature measurement parameters pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_set_logger_file\n\n dirp_set_logger_file (file_name)\n\nSet external logger file. Parameters [in]file_name:File name which save log information. Set it as nullptr if you want print log on console.\n\nsource\n\n\ndirp_set_isotherm\n\n dirp_set_isotherm (h, isotherm)\n\nSet custom ISP isotherm parameters. Parameters [in]h:DIRP API handle [in]isotherm:ISP isotherm parameters pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_set_enhancement_params\n\n dirp_set_enhancement_params (h, enhancement_params)\n\nSet custom ISP enhancement parameters. Parameters [in]h:DIRP API handle [in]enhancement_params:ISP enhancement parameters pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_set_color_bar\n\n dirp_set_color_bar (h, color_bar)\n\nSet custom ISP color bar parameters. Parameters [in]h:DIRP API handle [in]color_bar:ISP color bar parameters pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_process_strech\n\n dirp_process_strech (h, strech_image, size)\n\nRun ISP strech algorithm with RAW data in R-JPEG and output FLOAT32 streching image. The ISP strech configurable parameters can be modifed by these APIs:\ndirp_set_enhancement_params\ndirp_set_isotherm\ndirp_set_color_bar\nParameters [in]h:DIRP API handle [out]strech_image:Strech image data buffer pointer [in]size:Strech image data buffer size in bytes. Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_process\n\n dirp_process (h, color_image, size)\n\nRun ISP algorithm with RAW data in R-JPEG and output RGB pseudo color image. The ISP configurable parameters can be modifed by these APIs: dirp_set_enhancement_params dirp_set_isotherm dirp_set_color_bar dirp_set_pseudo_color Parameters [in]h:DIRP API handle [out]color_image:Color image data buffer pointer [in]size:Color image data buffer size in bytes. Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_measure_ex\n\n dirp_measure_ex (h, temp_image, size)\n\nMeasure temperature of whole thermal image with RAW data in R-JPEG. Each FLOAT32 pixel value represents the real temperature in Celsius. The custom measurement parameters can be modifed by this API:\ndirp_set_measurement_params Parameters [in]h:DIRP API handle [out]temp_image:Temperature image data buffer pointer [in]size:Temperature image data buffer size in bytes Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_measure\n\n dirp_measure (h, temp_image, size)\n\nMeasure temperature of whole thermal image with RAW data in R-JPEG. Each INT16 pixel value represents ten times the temperature value in Celsius. In other words, each LSB represents 0.1 degrees Celsius. The custom measurement parameters can be modifed by this API:dirp_set_measurement_params Parameters [in]h:DIRP API handle [out]temp_image:Temperature image data buffer pointer [in]size:Temperature image data buffer size in bytes Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_rjpeg_version\n\n dirp_get_rjpeg_version (h, version)\n\nGet R-JPEG version. Parameters [in]h:DIRP API handle [out]version: R-JPEG version information pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_rjpeg_resolution\n\n dirp_get_rjpeg_resolution (h, rjpeg_info)\n\nGet R-JPEG image resolution information. Parameters [in]h: DIRP API handle [out]rjpeg_info: R-JPEG basic information pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_pseudo_color_lut\n\n dirp_get_pseudo_color_lut (h, pseudo_lut)\n\nGet ISP pseudo color LUT. Parameters [in]h: DIRP API handle [out]pseudo_lut: ISP pseudo color LUT pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_pseudo_color\n\n dirp_get_pseudo_color (h, pseudo_color)\n\nGet orignial/custom ISP pseudo color type. Parameters [in]h: DIRP API handle [out]pseudo_color ISP pseudo color type pointer dirp_pseudo_color_e Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_original_raw\n\n dirp_get_original_raw (h, raw_image, size)\n\nGet original RAW binary data from R-JPEG. Parameters [in]h:DIRP API handle [out]raw_image:Original RAW image data buffer pointer [in]size:Original RAW image data buffer size in bytes Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_measurement_params_range\n\n dirp_get_measurement_params_range (h, params_range)\n\nGet range of temperature measurement parameters that user can set. Parameters [in] h: DIRP API handle [out] params_range: Temperature measurement parameters range pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_measurement_params\n\n dirp_get_measurement_params (h, measurement_params)\n\nGet orignial/custom temperature measurement parameters. Parameters [in] h: DIRP API handle [out] measurement_params: Temperature measurement parameters pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_isotherm\n\n dirp_get_isotherm (h, isotherm)\n\nGet orignial/custom ISP isotherm parameters. Parameters [in]h: DIRP API handle [out]isotherm: ISP isotherm parameters pointer Returns int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_enhancement_params\n\n dirp_get_enhancement_params (h, enhancement_params)\n\nGet orignial/custom ISP enhancement parameters. Parameters: [in] h: DIRP API handle [out] enhancement_params ISP enhancement parameters pointer\nReturn: int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_color_bar_adaptive_params\n\n dirp_get_color_bar_adaptive_params (h, color_bar)\n\nGet adaptive ISP color bar parameters in automatic mode. In color bar automatic mode : manual_enable in dirp_color_bar_t is set as false. The inner ISP algorithm will calculate the best range values for color bar. Before calling this API you should call dirp_process once at least. And if any processing or measurement parameters had been changed, you should also call dirp_process again for getting new color bar adaptive parameters. In the above calling dirp_process, manual_enable in dirp_color_bar_t must be set as false.\nParameters [in] h: DIRP API handle [out] color_bar: ISP color bar parameters pointer\nReturn: int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_color_bar\n\n dirp_get_color_bar (h, color_bar)\n\nParameters: [in] h: DIRP API handle [out] color_bar: ISP color bar parameters pointer Return: int return code dirp_ret_code_e\n\nsource\n\n\ndirp_get_api_version\n\n dirp_get_api_version (version)\n\nParameters: [out] version DIRP API version information pointer Return: int return code dirp_ret_code_e\n\nsource\n\n\ndirp_destroy\n\n dirp_destroy (ph)\n\nParameters: [in]ph: DIRP API handle Return: int return code dirp_ret_code_e\n\nsource\n\n\ndirp_create_from_rjpeg\n\n dirp_create_from_rjpeg (data, size, ph)\n\nParameters: [in] data: R-JPEG binary data buffer pointer [in] size: R-JPEG binary data buffer size in bytes [out]ph : DIRP API handle pointer - reminder: use two-level pointer to assign value to one-level pointer Return: int return code dirp_ret_code_e\n\nsource\n\n\nget_pseudo_color\n\n get_pseudo_color ()\n\nreturn the pseudo color dictionary."
+  }
+]
