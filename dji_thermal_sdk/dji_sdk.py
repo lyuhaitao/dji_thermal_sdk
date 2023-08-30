@@ -164,9 +164,12 @@ def _getFunHandleFromDJIDll(dll_handle_str, fun_name_str):
     pass
 
 # %% ../00_core_dji.ipynb 9
-def dji_init(dllpath:str=None):
+def dji_init(dllpath:str=None, osname='windows'):
     if dllpath is None:
-        dllfp = os.path.join(os.getcwd(),"dji_thermal_sdk", "libdirp.dll")
+        if osname.startswith('win'):
+            dllfp = os.path.join("windows", "libdirp.dll")
+        else:
+            dllfp = os.path.join("linux", "libdirp.so")
     else:
         dllfp = dllpath
     try:
